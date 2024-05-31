@@ -1,19 +1,24 @@
-using MafiaProj.Controllers;
-using MafiaProj.Data;
-using MafiaProj.Models;
+using MafiaAPI.Data;
+using MafiaAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
 
-namespace MafiaProj
+namespace MafiaAPI
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            // Создаем билдер приложения
             var builder = WebApplication.CreateBuilder(args);
 
-            // Добавляем модуль сессий
+            // Add services to the container.
+
+            builder.Services.AddControllers();
+            builder.Services.AddTransient<IUserRepository, EFUserRepository>();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            /*builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();*/
+
+            // Add session service
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
@@ -21,67 +26,29 @@ namespace MafiaProj
                 options.IdleTimeout = TimeSpan.FromHours(12);
             });
 
-            // Добавляем подключение PostgreSQL
+            // Add Authentication Service
+            builder.Services.AddAuthentication("Cookies").AddCookie(options => options.LoginPath = "/api/users/login");
+            builder.Services.AddAuthorization();
+
+            // Connecting PostgreSQL
             var connection = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
 
-            // Билдим приложение
             var app = builder.Build();
 
-            // Подключаем сессии к приложению
-            app.UseSession();
-
-            // Добавляем маршрутизацию
-            app.Run(async (context) =>
+            // Configure the HTTP request pipeline.
+            /*if (app.Environment.IsDevelopment())
             {
-                var response = context.Response;
-                var request = context.Request;
-                var session = context.Session;
-                var path = request.Path;
-                var dbContext = app.Services.CreateScope().ServiceProvider.GetService<AppDbContext>();
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }*/
 
-                if (path == "/api/user/auth" && request.Method == "POST")
-                {
-                    await UsersController.AuthUser(request, response, dbContext, session);
-                }
-                else if (path == "/api/user/register" && request.Method == "POST")
-                {
-                    await UsersController.CreateUser(request, response, dbContext);
-                }
+            // Start Authentication Middleware
+            app.UseAuthentication();
+            app.UseAuthorization();
 
+            app.MapControllers();
 
-
-                /*if (path == "/api/users" && request.Method == "GET")
-                {
-                    await GetAllPeople(response);
-                }
-                else if (Regex.IsMatch(path, expressionForGuid) && request.Method == "GET")
-                {
-                    // получаем id из адреса url
-                    string? id = path.Value?.Split("/")[3];
-                    await GetPerson(id, response);
-                }
-                else if (path == "/api/users" && request.Method == "POST")
-                {
-                    await CreatePerson(response, request);
-                }
-                else if (path == "/api/users" && request.Method == "PUT")
-                {
-                    await UpdatePerson(response, request);
-                }
-                else if (Regex.IsMatch(path, expressionForGuid) && request.Method == "DELETE")
-                {
-                    string? id = path.Value?.Split("/")[3];
-                    await DeletePerson(id, response);
-                }
-                else
-                {
-                    response.ContentType = "text/html; charset=utf-8";
-                    await response.SendFileAsync("html/index.html");
-                }*/
-            });
-
-            // Запуск приложения
             app.Run();
         }
     }

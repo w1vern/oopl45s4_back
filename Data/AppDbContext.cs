@@ -1,7 +1,7 @@
-﻿using MafiaProj.Models;
+﻿using MafiaAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace MafiaProj.Data
+namespace MafiaAPI.Data
 {
     public class AppDbContext : DbContext
     {

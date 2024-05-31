@@ -8,17 +8,17 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["MafiaProj.csproj", "."]
-RUN dotnet restore "./MafiaProj.csproj"
+COPY ["MafiaAPI.csproj", "."]
+RUN dotnet restore "./MafiaAPI.csproj"
 COPY . .
 WORKDIR "/src/."
-RUN dotnet build "./MafiaProj.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./MafiaAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./MafiaProj.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./MafiaAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "MafiaProj.dll"]
+ENTRYPOINT ["dotnet", "MafiaAPI.dll"]

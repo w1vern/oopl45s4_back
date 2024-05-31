@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace MafiaProj.OtherStuff
+namespace MafiaAPI
 {
     public class SHA256Helper
     {
@@ -20,4 +20,3 @@ namespace MafiaProj.OtherStuff
         }
     }
 }
-

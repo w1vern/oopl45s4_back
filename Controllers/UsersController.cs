@@ -1,94 +1,197 @@
-﻿using MafiaProj.Data;
-using MafiaProj.Models;
-using MafiaProj.OtherStuff;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
-
-namespace MafiaProj.Controllers
+using MafiaAPI.Data;
+using MafiaAPI.Models;
+using MafiaAPI.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using MafiaAPI.RequestModels;
+using Newtonsoft.Json;
+using System.Security.Claims;
+namespace MafiaAPI.Controllers
 {
-    public class UsersController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UsersController : ControllerBase
     {
-        // Создание пользователя
-        public static async Task CreateUser(HttpRequest httpRequest, HttpResponse httpResponse, AppDbContext db)
+        private readonly IUserRepository _userRepository;
+
+        public UsersController(IUserRepository userRepository)
         {
-            try
-            {
-                // Читаем данные пользователя из JSON
-                var user = await httpRequest.ReadFromJsonAsync<User>();
-                if (user != null)
-                {
-                    if(await db.Users.FirstOrDefaultAsync(x => x.Name == user.Name) == null)
-                    {
-                        // Генерируем UID
-                        user.Id = Guid.NewGuid().ToString();
-                        // Преобразуем пароль в SHA256
-                        user.Password = SHA256Helper.ComputeSHA256(user.Password);
-                        // Добавляем пользователя и оформляем транзакцию
-                        db.Users.Add(user);
-                        httpResponse.StatusCode = 201;
-                        await db.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        httpResponse.StatusCode = 409;
-                        await httpResponse.WriteAsJsonAsync(new { message = "UserExist" });
-                    }
-                }
-                else
-                {
-                    throw new Exception();
-                }
-            }
-            catch (Exception)
-            {
-                httpResponse.StatusCode = 400;
-                await httpResponse.WriteAsJsonAsync(new { message = "IncorrectData" });
-            }
+            _userRepository = userRepository;
         }
 
-        public static async Task AuthUser(HttpRequest httpRequest, HttpResponse httpResponse, AppDbContext db, ISession session)
+        [HttpPost(Name = "login")]
+        public async Task<IActionResult> GetUser()
         {
-            try
+            UserAuthRequest userAuthRequest = HttpContext.Request.ReadFromJsonAsync<UserAuthRequest>().Result;
+            if (userAuthRequest == null)
             {
-                // Читаем данные пользователя из JSON
-                var user = await httpRequest.ReadFromJsonAsync<User>();
-                if (user != null)
+                return BadRequest();
+            }
+            User user = await _userRepository.GetByName(userAuthRequest.Name);
+            if(user == null)
+            {
+                return NotFound();
+            }
+            if(user.Password != SHA256Helper.ComputeSHA256(userAuthRequest.Password))
+            {
+                return Unauthorized();
+            }
+
+            var claims = new List<Claim> { new Claim(ClaimTypes.Name, user.Id) };
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+        }
+
+        [HttpGet(Name = "logout")]
+        public async void Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        }
+
+        public IActionResult Create([FromBody] User user)
+        {
+
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            
+        }
+
+        public async Task<IActionResult> Details(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
+
+        // GET: Users/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Users/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Name,Password")] User user)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(user);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(user);
+        }
+
+        // GET: Users/Edit/5
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return View(user);
+        }
+
+        // POST: Users/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, [Bind("Id,Name,Password")] User user)
+        {
+            if (id != user.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
                 {
-                    var findUser = await db.Users.FirstOrDefaultAsync(x => x.Name == user.Name);
-                    if (findUser != null)
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!UserExists(user.Id))
                     {
-                        if(findUser.Password == SHA256Helper.ComputeSHA256(user.Password))
-                        {
-                            httpResponse.StatusCode = 200;
-                            session.SetString("Id", findUser.Id);
-                        }
-                        else
-                        {
-                            httpResponse.StatusCode = 401;
-                            await httpResponse.WriteAsJsonAsync(new { message = "IncorrectPassword" });
-                        }
+                        return NotFound();
                     }
                     else
                     {
-                        httpResponse.StatusCode = 404;
-                        await httpResponse.WriteAsJsonAsync(new { message = "UserNotFound" });
+                        throw;
                     }
-                    // Добавляем пользователя и оформляем транзакцию
-                    db.Users.Add(user);
-                    httpResponse.StatusCode = 201;
-                    await db.SaveChangesAsync();
                 }
-                else
-                {
-                    throw new Exception();
-                }
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception)
+            return View(user);
+        }
+
+        // GET: Users/Delete/5
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (id == null)
             {
-                httpResponse.StatusCode = 400;
-                await httpResponse.WriteAsJsonAsync(new { message = "IncorrectData" });
+                return NotFound();
             }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
+
+        // POST: Users/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool UserExists(string id)
+        {
+            return _context.Users.Any(e => e.Id == id);
         }
     }
 }
