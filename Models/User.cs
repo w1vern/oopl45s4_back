@@ -5,6 +5,6 @@
         public string Id { get; set; }
         public string Name { get; set; }
         public string Password { get; set; }
-        public string Secret { get; set; }
+        public List<PlayerState> PlayerStates { get; set; } = new();
     }
 }

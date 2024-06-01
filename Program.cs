@@ -14,6 +14,7 @@ namespace MafiaAPI
 
             builder.Services.AddControllers();
             builder.Services.AddTransient<IUserRepository, EFUserRepository>();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             /*builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();*/
@@ -26,8 +27,16 @@ namespace MafiaAPI
                 options.IdleTimeout = TimeSpan.FromHours(12);
             });
 
-            // Add Authentication Service
-            builder.Services.AddAuthentication("Cookies").AddCookie(options => options.LoginPath = "/api/users/login");
+            // Add authentication service
+            builder.Services.AddAuthentication("Cookies").AddCookie(options =>
+            {
+                // Specify login path
+                options.LoginPath = "/api/users/login";
+                // Specify expiration time
+                options.ExpireTimeSpan = TimeSpan.FromHours(1);
+                // Refresh expiration time while User is active
+                options.SlidingExpiration = true;
+            });
             builder.Services.AddAuthorization();
 
             // Connecting PostgreSQL

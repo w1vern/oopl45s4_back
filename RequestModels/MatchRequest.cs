@@ -1,12 +1,12 @@
-﻿namespace MafiaAPI.Models
+﻿namespace MafiaAPI.RequestModels
 {
-    public class Match
+    public class MatchRequest
     {
         public string Id { get; set; }
         public DateTime? MatchStart { get; set; }
         public DateTime? MatchEnd { get; set; }
         public string? MatchResult { get; set; }
         public Uri? WebsocketURL { get; set; }
-        public List<PlayerState> PlayerStates { get; set; } = new();
+        public List<string> PlayersIds { get; set; } = new();
     }
 }

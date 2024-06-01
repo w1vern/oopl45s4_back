@@ -9,8 +9,6 @@ namespace MafiaAPI.Repositories
         void Create(User item);
         void Update(User item);
         Task<User> Delete(string id);
-        Task<User> DeleteByName(string name);
         Task<User> GetByName(string name);
-        Task<User> GetByToken(string id, string secret);
     }
 }
