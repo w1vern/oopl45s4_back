@@ -23,20 +23,30 @@ namespace MafiaAPI.Controllers
         [HttpPost(Name = "StartMatch")]
         public async Task<IActionResult> StartMatch([FromBody] string id)
         {
-            /*var userRequestingId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userRequesting = _matchRepository...*/
+            string? userRequestingId = User.Identity.Name;
             Match match = await _matchRepository.Get(id);
+            foreach (var ps in match.PlayerStates)
+            {
+                if (ps.Role == "Host")
+                {
+                    if(ps.User.Id != userRequestingId)
+                    {
+                        return Forbid();
+                    }
+                    break;
+                }
+            }
             if (match == null)
             {
                 return BadRequest();
             }
             if (match.MatchStart != null)
             {
-                return Forbid();
+                return Conflict();
             }
 
             match.MatchStart = DateTime.Now;
-            _matchRepository.Update(match);
+            await _matchRepository.Update(match);
             return Ok();
         }
 

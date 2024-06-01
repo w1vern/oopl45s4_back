@@ -2,12 +2,12 @@
 
 namespace MafiaAPI.Repositories
 {
-    public interface IRoleRepository
+    public interface IPlayerStateRepository
     {
         IEnumerable<PlayerState> Get();
         Task<PlayerState> Get(string id);
-        void Create(PlayerState item);
-        void Update(PlayerState item);
+        Task Create(PlayerState item);
+        Task Update(PlayerState item);
         Task<PlayerState> Delete(string id);
     }
 }

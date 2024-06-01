@@ -16,8 +16,8 @@ namespace MafiaAPI
             builder.Services.AddTransient<IUserRepository, EFUserRepository>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            /*builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();*/
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             // Add session service
             builder.Services.AddDistributedMemoryCache();
@@ -46,11 +46,11 @@ namespace MafiaAPI
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            /*if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }*/
+            }
 
             // Start Authentication Middleware
             app.UseAuthentication();

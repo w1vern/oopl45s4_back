@@ -59,13 +59,13 @@ namespace MafiaAPI.Controllers
         }
 
         [HttpPost("register", Name = "RegisterUser")]
-        public IActionResult RegisterUser([FromBody] UserAuthRequest userAuthRequest)
+        public async Task<IActionResult> RegisterUser([FromBody] UserAuthRequest userAuthRequest)
         {
             if (userAuthRequest == null)
             {
                 return BadRequest();
             }
-            if (_userRepository.GetByName(userAuthRequest.Name) != null)
+            if (await _userRepository.GetByName(userAuthRequest.Name) != null)
             {
                 return Conflict();
             }
@@ -74,7 +74,7 @@ namespace MafiaAPI.Controllers
                 Name = userAuthRequest.Name,
                 Password = SHA256Helper.ComputeSHA256(userAuthRequest.Password)
             };
-            _userRepository.Create(user);
+            await _userRepository.Create(user);
             return Ok();
         }
 
@@ -82,7 +82,7 @@ namespace MafiaAPI.Controllers
         [HttpGet(Name = "GetMatch")]
         public async Task<IActionResult> GetCurrentMatch()
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? userId = User.Identity.Name;
             User user = await _userRepository.Get(userId);
 
             foreach (var ps in user.PlayerStates)

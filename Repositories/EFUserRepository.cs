@@ -11,7 +11,7 @@ namespace MafiaAPI.Repositories
         {
             _context = appDbContext;
         }
-        public async void Create(User item)
+        public async Task Create(User item)
         {
             item.Id = Guid.NewGuid().ToString();
             _context.Users.Add(item);
@@ -20,13 +20,13 @@ namespace MafiaAPI.Repositories
 
         public async Task<User> Delete(string id)
         {
-            var user = Get(id);
+            var user = await Get(id);
             if (user != null)
             {
-                _context.Users.Remove(user.Result);
+                _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
             }
-            return user.Result;
+            return user;
         }
 
         public IEnumerable<User> Get()
@@ -39,16 +39,16 @@ namespace MafiaAPI.Repositories
             return await _context.Users.FindAsync(id);
         }
 
-        public async void Update(User item)
+        public async Task Update(User item)
         {
-            var user = Get(item.Id);
+            var user = await Get(item.Id);
             if (user != null)
             {
-                user.Result.Name = item.Name;
-                user.Result.Password = item.Password;
-                user.Result.PlayerStates = item.PlayerStates;
+                user.Name = item.Name;
+                user.Password = item.Password;
+                user.PlayerStates = item.PlayerStates;
 
-                _context.Users.Update(user.Result);
+                _context.Users.Update(user);
                 await _context.SaveChangesAsync();
             }
         }

@@ -7,12 +7,12 @@ namespace MafiaAPI.Data
     {
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Match> Matches { get; set; } = null!;
-        public DbSet<PlayerState> Roles { get; set; }
+        public DbSet<PlayerState> PlayerStates { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
             // Затычка (без миграции)
-            Database.EnsureDeleted();
+            //Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 

@@ -11,7 +11,7 @@ namespace MafiaAPI.Repositories
             _context = appDbContext;
         }
 
-        public async void Create(Match item)
+        public async Task Create(Match item)
         {
             item.Id = Guid.NewGuid().ToString();
             _context.Matches.Add(item);
@@ -20,13 +20,13 @@ namespace MafiaAPI.Repositories
 
         public async Task<Match> Delete(string id)
         {
-            var match = Get(id);
+            var match = await Get(id);
             if (match != null)
             {
-                _context.Matches.Remove(match.Result);
+                _context.Matches.Remove(match);
                 await _context.SaveChangesAsync();
             }
-            return match.Result;
+            return match;
         }
 
         public IEnumerable<Match> Get()
@@ -39,17 +39,17 @@ namespace MafiaAPI.Repositories
             return await _context.Matches.FindAsync(id);
         }
 
-        public async void Update(Match item)
+        public async Task Update(Match item)
         {
-            var match = Get(item.Id);
+            var match = await Get(item.Id);
             if (match != null)
             {
-                match.Result.MatchStart = item.MatchStart;
-                match.Result.MatchEnd = item.MatchEnd;
-                match.Result.WebsocketURL = item.WebsocketURL;
-                match.Result.PlayerStates = item.PlayerStates;
+                match.MatchStart = item.MatchStart;
+                match.MatchEnd = item.MatchEnd;
+                match.WebsocketURL = item.WebsocketURL;
+                match.PlayerStates = item.PlayerStates;
 
-                _context.Matches.Update(match.Result);
+                _context.Matches.Update(match);
                 await _context.SaveChangesAsync();
             }
         }

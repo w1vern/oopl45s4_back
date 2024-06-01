@@ -6,8 +6,8 @@ namespace MafiaAPI.Repositories
     {
         IEnumerable<User> Get();
         Task<User> Get(string id);
-        void Create(User item);
-        void Update(User item);
+        Task Create(User item);
+        Task Update(User item);
         Task<User> Delete(string id);
         Task<User> GetByName(string name);
     }

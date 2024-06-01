@@ -6,8 +6,8 @@ namespace MafiaAPI.Repositories
     {
         IEnumerable<Match> Get();
         Task<Match> Get(string id);
-        void Create(Match item);
-        void Update(Match item);
+        Task Create(Match item);
+        Task Update(Match item);
         Task<Match> Delete(string id);
     }
 }
