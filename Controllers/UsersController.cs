@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using MafiaAPI.RequestModels;
 using Newtonsoft.Json;
 using System.Security.Claims;
+using MafiaAPI.Schemas;
 namespace MafiaAPI.Controllers
 {
     [ApiController]
@@ -30,16 +31,17 @@ namespace MafiaAPI.Controllers
         [HttpPost("login", Name = "LoginUser")]
         public async Task<IActionResult> LoginUser([FromBody] UserAuthRequest userAuthRequest)
         {
+            await Console.Out.WriteLineAsync($"Request: {userAuthRequest.login}");
             if (userAuthRequest == null)
             {
                 return BadRequest();
             }
-            User user = await _userRepository.GetByName(userAuthRequest.Name);
+            User user = await _userRepository.GetByName(userAuthRequest.login);
             if (user == null)
             {
                 return NotFound();
             }
-            if (user.Password != SHA256Helper.ComputeSHA256(userAuthRequest.Password))
+            if (user.Password != SHA256Helper.ComputeSHA256(userAuthRequest.password))
             {
                 return Unauthorized();
             }
@@ -59,40 +61,58 @@ namespace MafiaAPI.Controllers
         }
 
         [HttpPost("register", Name = "RegisterUser")]
-        public async Task<IActionResult> RegisterUser([FromBody] UserAuthRequest userAuthRequest)
+        public async Task<IActionResult> RegisterUser([FromBody] UserRegisterRequest userRegisterRequest)
         {
-            if (userAuthRequest == null)
+            if (userRegisterRequest == null)
             {
                 return BadRequest();
             }
-            if (await _userRepository.GetByName(userAuthRequest.Name) != null)
+            if(userRegisterRequest.password1 != userRegisterRequest.password2)
+            {
+                return BadRequest();
+            }
+            if (await _userRepository.GetByName(userRegisterRequest.login) != null)
             {
                 return Conflict();
             }
             User user = new()
             {
-                Name = userAuthRequest.Name,
-                Password = SHA256Helper.ComputeSHA256(userAuthRequest.Password)
+                Name = userRegisterRequest.login,
+                Password = SHA256Helper.ComputeSHA256(userRegisterRequest.password1)
             };
             await _userRepository.Create(user);
             return Ok();
         }
 
-        [Authorize]
-        [HttpGet(Name = "GetMatch")]
+        [HttpGet(Name = "GetUser")]
         public async Task<IActionResult> GetCurrentMatch()
         {
-            string? userId = User.Identity.Name;
-            User user = await _userRepository.Get(userId);
-
-            foreach (var ps in user.PlayerStates)
+            if(User.Identity.IsAuthenticated)
             {
-                if (ps.Match.MatchEnd == null)
+                string? userId = User.Identity.Name;
+                User user = await _userRepository.Get(userId);
+
+                foreach (var ps in user.PlayerStates)
                 {
-                    return Ok(ps.Match.Id);
+                    if (ps.Match.MatchEnd == null)
+                    {
+                        return Ok(new AuthenticatedUser()
+                        {
+                            name = user.Name,
+                            matchInProgress = true
+                        });
+                    }
                 }
+                return Ok(new AuthenticatedUser()
+                {
+                    name = user.Name,
+                    matchInProgress = false
+                });
             }
-            return NotFound();
+            else
+            {
+                return Unauthorized();
+            }
         }
     }
 }

@@ -40,7 +40,7 @@ namespace MafiaAPI
             builder.Services.AddAuthentication("Cookies").AddCookie(options =>
             {
                 // Specify login path
-                options.LoginPath = "/api/users/login";
+                options.LoginPath = "/api/Users/login";
                 // Specify expiration time
                 options.ExpireTimeSpan = TimeSpan.FromHours(1);
                 // Refresh expiration time while User is active
@@ -51,6 +51,13 @@ namespace MafiaAPI
             // Connecting PostgreSQL
             var connection = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
+
+            builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.WithOrigins("*")
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
 
             var app = builder.Build();
 
@@ -67,6 +74,8 @@ namespace MafiaAPI
 
             // Use WebSockets MW
             app.UseWebSockets();
+
+            app.UseCors("MyPolicy");
 
             app.MapControllers();
 

@@ -37,6 +37,28 @@ namespace MafiaAPI.Controllers
                 User = userHost
             };
             await _playerStateRepository.Create(playerState);
+            return Ok(match.Id);
+        }
+
+        [Authorize]
+        [HttpPost("connect/{id}", Name = "ConnectMatch")]
+        public async Task<IActionResult> ConnectMatch(string id)
+        {
+            var match = await _matchRepository.Get(id);
+            if(match == null || match.MatchStart != null)
+            {
+                return BadRequest();
+            }
+            string? userRequestingId = User.Identity.Name;
+            var userRequesting = await _userRepository.Get(userRequestingId);
+            PlayerState playerState = new()
+            {
+                Role = "Player",
+                IsAlive = true,
+                Match = match,
+                User = userRequesting
+            };
+            await _playerStateRepository.Create(playerState);
             return Ok();
         }
     }
