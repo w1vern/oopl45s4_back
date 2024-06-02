@@ -1,5 +1,6 @@
 using MafiaAPI.Data;
 using MafiaAPI.Repositories;
+using Microsoft.AspNetCore.WebSockets;
 using Microsoft.EntityFrameworkCore;
 
 namespace MafiaAPI
@@ -29,6 +30,12 @@ namespace MafiaAPI
                 options.IdleTimeout = TimeSpan.FromHours(12);
             });*/
 
+            // Add Websockets service
+            builder.Services.AddWebSockets(options =>
+            {
+                options.KeepAliveInterval = TimeSpan.FromMinutes(10);
+            });
+
             // Add authentication service
             builder.Services.AddAuthentication("Cookies").AddCookie(options =>
             {
@@ -57,6 +64,9 @@ namespace MafiaAPI
             // Start Authentication Middleware
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // Use WebSockets MW
+            app.UseWebSockets();
 
             app.MapControllers();
 
