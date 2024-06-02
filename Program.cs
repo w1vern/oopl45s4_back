@@ -22,12 +22,12 @@ namespace MafiaAPI
             builder.Services.AddSwaggerGen();
 
             // Add session service
-            builder.Services.AddDistributedMemoryCache();
+            /*builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
                 options.Cookie.Name = ".MafiaGame.Session";
                 options.IdleTimeout = TimeSpan.FromHours(12);
-            });
+            });*/
 
             // Add authentication service
             builder.Services.AddAuthentication("Cookies").AddCookie(options =>
