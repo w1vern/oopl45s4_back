@@ -20,7 +20,7 @@ namespace MafiaAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost(Name = "StartMatch")]
+        [HttpPost("start", Name = "StartMatch")]
         public async Task<IActionResult> StartMatch([FromBody] string id)
         {
             string? userRequestingId = User.Identity.Name;

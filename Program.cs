@@ -14,6 +14,8 @@ namespace MafiaAPI
 
             builder.Services.AddControllers();
             builder.Services.AddTransient<IUserRepository, EFUserRepository>();
+            builder.Services.AddTransient<IMatchRepository, EFMatchRepository>();
+            builder.Services.AddTransient<IPlayerStateRepository, EFPlayerStateRepository>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
