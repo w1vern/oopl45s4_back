@@ -6,7 +6,6 @@
         public DateTime? MatchStart { get; set; }
         public DateTime? MatchEnd { get; set; }
         public string? MatchResult { get; set; }
-        public Uri? WebsocketURL { get; set; }
         public List<string> PlayersIds { get; set; } = new();
     }
 }

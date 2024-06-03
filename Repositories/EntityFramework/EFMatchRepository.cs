@@ -32,7 +32,7 @@ namespace MafiaAPI.Repositories.EntityFramework
 
         public IEnumerable<Match> Get()
         {
-            return _context.Matches.Include(x => x.PlayerStates).ThenInclude(x => x.User);
+            return _context.Matches;
         }
 
         public async Task<Match> Get(string id)
@@ -47,7 +47,6 @@ namespace MafiaAPI.Repositories.EntityFramework
             {
                 match.MatchStart = item.MatchStart;
                 match.MatchEnd = item.MatchEnd;
-                match.WebsocketURL = item.WebsocketURL;
                 match.PlayerStates = item.PlayerStates;
 
                 _context.Matches.Update(match);

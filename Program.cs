@@ -1,4 +1,5 @@
 using MafiaAPI.Data;
+using MafiaAPI.Hub;
 using MafiaAPI.Repositories;
 using MafiaAPI.Repositories.EntityFramework;
 using Microsoft.AspNetCore.WebSockets;
@@ -61,6 +62,8 @@ namespace MafiaAPI
                        .AllowAnyHeader();
             }));
 
+            builder.Services.AddSignalR();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -80,6 +83,8 @@ namespace MafiaAPI
             app.UseCors("MyPolicy");
 
             app.MapControllers();
+
+            app.MapHub<SignalRHub>("/api/signal");
 
             app.Run();
         }

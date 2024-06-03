@@ -1,8 +1,10 @@
-﻿using MafiaAPI.Models;
+﻿using MafiaAPI.Hub;
+using MafiaAPI.Models;
 using MafiaAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace MafiaAPI.Controllers
 {
@@ -13,12 +15,14 @@ namespace MafiaAPI.Controllers
         private readonly IMatchRepository _matchRepository;
         private readonly IPlayerStateRepository _playerStateRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IHubContext<SignalRHub> _hubContext;
 
-        public LobbiesController(IMatchRepository matchRepository, IPlayerStateRepository playerStateRepository, IUserRepository userRepository)
+        public LobbiesController(IMatchRepository matchRepository, IPlayerStateRepository playerStateRepository, IUserRepository userRepository, IHubContext<SignalRHub> hubContext)
         {
             _matchRepository = matchRepository;
             _playerStateRepository = playerStateRepository;
             _userRepository = userRepository;
+            _hubContext = hubContext;
         }
 
         [Authorize]
@@ -61,7 +65,7 @@ namespace MafiaAPI.Controllers
             var userRequesting = await _userRepository.Get(userRequestingId);
             foreach (var player in match.PlayerStates)
             {
-                if(player.Id == userRequestingId)
+                if(player.UserId == userRequestingId)
                 {
                     return BadRequest();
                 }
@@ -74,6 +78,7 @@ namespace MafiaAPI.Controllers
                 User = userRequesting
             };
             await _playerStateRepository.Create(playerState);
+            await _hubContext.Clients.Group(id).SendAsync("Refresh");
             return Ok();
         }
     }

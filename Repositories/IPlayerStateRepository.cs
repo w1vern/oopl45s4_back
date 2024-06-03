@@ -9,5 +9,6 @@ namespace MafiaAPI.Repositories
         Task Create(PlayerState item);
         Task Update(PlayerState item);
         Task<PlayerState> Delete(string id);
+        Task<PlayerState> GetByUserMatchIds(string userId, string matchId);
     }
 }

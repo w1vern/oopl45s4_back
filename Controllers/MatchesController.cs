@@ -1,9 +1,11 @@
-﻿using MafiaAPI.Models;
+﻿using MafiaAPI.Hub;
+using MafiaAPI.Models;
 using MafiaAPI.Repositories;
 using MafiaAPI.RequestModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 namespace MafiaAPI.Controllers
@@ -13,10 +15,14 @@ namespace MafiaAPI.Controllers
     public class MatchesController : ControllerBase
     {
         private readonly IMatchRepository _matchRepository;
+        private readonly IPlayerStateRepository _playerStateRepository;
+        private readonly IHubContext<SignalRHub> _hubContext;
 
-        public MatchesController(IMatchRepository matchRepository)
+        public MatchesController(IMatchRepository matchRepository, IPlayerStateRepository playerStateRepository, IHubContext<SignalRHub> hubContext)
         {
             _matchRepository = matchRepository;
+            _playerStateRepository = playerStateRepository;
+            _hubContext = hubContext;
         }
 
         [Authorize]
@@ -48,22 +54,6 @@ namespace MafiaAPI.Controllers
             match.MatchStart = DateTime.Now;
             await _matchRepository.Update(match);
             return Ok();
-        }
-
-        [Authorize]
-        [HttpGet(Name = "GetWebsocketURL")]
-        public async Task<IActionResult> GetWebsocketURL([FromBody] string id)
-        {
-            var match = await _matchRepository.Get(id);
-            if (match == null)
-            {
-                return BadRequest();
-            }
-            if (match.MatchEnd != null)
-            {
-                return NotFound();
-            }
-            return Ok(match.WebsocketURL);
         }
 
         [Authorize]
@@ -103,6 +93,30 @@ namespace MafiaAPI.Controllers
                 }
             }
             return Ok(matchesAvailable);
+        }
+
+        [Authorize]
+        [HttpPost("{id}/kill")]
+        public async Task<IActionResult> KillInMatch(string id, [FromBody] string playerId)
+        {
+            var match = await _matchRepository.Get(id);
+            var ps = match.PlayerStates.FirstOrDefault(x => x.UserId == playerId);
+            ps.IsAlive = false;
+            await _playerStateRepository.Update(ps);
+            await _hubContext.Clients.Group(id).SendAsync("Refresh");
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("{id}/revive")]
+        public async Task<IActionResult> ReviveInMatch(string id, [FromBody] string playerId)
+        {
+            var match = await _matchRepository.Get(id);
+            var ps = match.PlayerStates.FirstOrDefault(x => x.UserId == playerId);
+            ps.IsAlive = true;
+            await _playerStateRepository.Update(ps);
+            await _hubContext.Clients.Group(id).SendAsync("Refresh");
+            return Ok();
         }
     }
 }

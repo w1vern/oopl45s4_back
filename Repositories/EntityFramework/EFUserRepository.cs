@@ -31,12 +31,12 @@ namespace MafiaAPI.Repositories.EntityFramework
 
         public IEnumerable<User> Get()
         {
-            return _context.Users.Include(x => x.PlayerStates).ThenInclude(x => x.User);
+            return _context.Users;
         }
 
         public async Task<User> Get(string id)
         {
-            return await _context.Users.Include(x => x.PlayerStates).ThenInclude(x => x.User).FirstOrDefaultAsync(u => u.Id == id);
+            return await _context.Users.Include(x => x.PlayerStates).ThenInclude(x => x.Match).FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task Update(User item)
