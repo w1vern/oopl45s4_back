@@ -67,7 +67,7 @@ namespace MafiaAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet("{id:alpha}", Name = "GetMatchInfo")]
+        [HttpGet("{id:guid}", Name = "GetMatchInfo")]
         public async Task<IActionResult> GetInfo(string id)
         {
             var match = await _matchRepository.Get(id);

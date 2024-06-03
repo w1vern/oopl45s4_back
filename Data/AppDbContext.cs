@@ -8,6 +8,7 @@ namespace MafiaAPI.Data
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Match> Matches { get; set; } = null!;
         public DbSet<PlayerState> PlayerStates { get; set; }
+        public DbSet<Role> Roles { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -27,7 +28,7 @@ namespace MafiaAPI.Data
                 .HasOne(x => x.User)
                 .WithMany(p => p.PlayerStates)
                 .HasForeignKey(x => x.UserId);
-
+            
             modelBuilder.Entity<PlayerState>()
                 .HasOne(x => x.Match)
                 .WithMany(p => p.PlayerStates)

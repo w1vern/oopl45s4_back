@@ -1,7 +1,8 @@
 ﻿using MafiaAPI.Data;
 using MafiaAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace MafiaAPI.Repositories
+namespace MafiaAPI.Repositories.EntityFramework
 {
     public class EFMatchRepository : IMatchRepository
     {
@@ -31,12 +32,12 @@ namespace MafiaAPI.Repositories
 
         public IEnumerable<Match> Get()
         {
-            return _context.Matches;
+            return _context.Matches.Include(x => x.PlayerStates).ThenInclude(x => x.User);
         }
 
         public async Task<Match> Get(string id)
         {
-            return await _context.Matches.FindAsync(id);
+            return await _context.Matches.Include(x => x.PlayerStates).ThenInclude(x => x.User).FirstOrDefaultAsync(m => m.Id == id);
         }
 
         public async Task Update(Match item)

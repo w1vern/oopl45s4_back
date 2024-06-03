@@ -1,5 +1,6 @@
 using MafiaAPI.Data;
 using MafiaAPI.Repositories;
+using MafiaAPI.Repositories.EntityFramework;
 using Microsoft.AspNetCore.WebSockets;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,7 @@ namespace MafiaAPI
             builder.Services.AddTransient<IUserRepository, EFUserRepository>();
             builder.Services.AddTransient<IMatchRepository, EFMatchRepository>();
             builder.Services.AddTransient<IPlayerStateRepository, EFPlayerStateRepository>();
+            builder.Services.AddTransient<IRoleRepository, EFRoleRepository>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

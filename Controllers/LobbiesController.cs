@@ -27,6 +27,14 @@ namespace MafiaAPI.Controllers
         {
             string? userRequestingId = User.Identity.Name;
             var userHost = await _userRepository.Get(userRequestingId);
+            var matchesList = userHost.PlayerStates;
+            foreach (var mch in matchesList)
+            {
+                if (mch.Match.MatchEnd == null && mch.Role == "Host")
+                {
+                    return BadRequest();
+                }
+            }
             Match match = new();
             await _matchRepository.Create(match);
             PlayerState playerState = new()
@@ -51,6 +59,13 @@ namespace MafiaAPI.Controllers
             }
             string? userRequestingId = User.Identity.Name;
             var userRequesting = await _userRepository.Get(userRequestingId);
+            foreach (var player in match.PlayerStates)
+            {
+                if(player.Id == userRequestingId)
+                {
+                    return BadRequest();
+                }
+            }
             PlayerState playerState = new()
             {
                 Role = "Player",

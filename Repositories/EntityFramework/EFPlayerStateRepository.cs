@@ -2,7 +2,7 @@
 using MafiaAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace MafiaAPI.Repositories
+namespace MafiaAPI.Repositories.EntityFramework
 {
     public class EFPlayerStateRepository : IPlayerStateRepository
     {
