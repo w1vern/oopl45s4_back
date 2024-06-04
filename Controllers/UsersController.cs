@@ -85,7 +85,7 @@ namespace MafiaAPI.Controllers
         }
 
         [HttpGet(Name = "GetUser")]
-        public async Task<IActionResult> GetCurrentMatch()
+        public async Task<IActionResult> GetUser()
         {
             if(User.Identity.IsAuthenticated)
             {
@@ -98,13 +98,16 @@ namespace MafiaAPI.Controllers
                     {
                         return Ok(new AuthenticatedUser()
                         {
+                            id = user.Id,
                             name = user.Name,
-                            matchInProgress = true
+                            matchInProgress = true,
+                            matchInProgressId = ps.MatchId
                         });
                     }
                 }
                 return Ok(new AuthenticatedUser()
                 {
+                    id = user.Id,
                     name = user.Name,
                     matchInProgress = false
                 });

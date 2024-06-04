@@ -65,6 +65,9 @@ namespace MafiaAPI.Controllers
             {
                 return BadRequest();
             }
+            if(!match.PlayerStates.Any(x => x.User.Id == User.Identity.Name)) {
+                return BadRequest();
+            }
             MatchRequest matchRequest = new()
             {
                 Id = match.Id,
