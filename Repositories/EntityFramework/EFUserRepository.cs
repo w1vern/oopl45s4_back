@@ -36,7 +36,7 @@ namespace MafiaAPI.Repositories.EntityFramework
 
         public async Task<User> Get(string id)
         {
-            return await _context.Users.Include(x => x.PlayerStates).ThenInclude(x => x.Match).FirstOrDefaultAsync(u => u.Id == id);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task Update(User item)

@@ -13,12 +13,5 @@ namespace MafiaAPI.Controllers
         {
             _roleRepository = roleRepository;
         }
-
-        [Authorize]
-        [HttpGet(Name = "GetRoles")]
-        public IActionResult GetRoles()
-        {
-            return Ok(_roleRepository.Get());
-        }
     }
 }

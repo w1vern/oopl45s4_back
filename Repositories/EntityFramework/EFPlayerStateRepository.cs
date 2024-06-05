@@ -43,8 +43,6 @@ namespace MafiaAPI.Repositories.EntityFramework
         public async Task<PlayerState> GetByUserMatchIds(string userId, string matchId)
         {
             return await _context.PlayerStates
-                .Include(p => p.User)
-                .Include(p => p.Match)
                 .Where(x => x.MatchId == matchId)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
         }

@@ -2,6 +2,7 @@
 using MafiaAPI.Models;
 using MafiaAPI.Repositories;
 using MafiaAPI.RequestModels;
+using MafiaAPI.Schemas;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -84,13 +85,24 @@ namespace MafiaAPI.Controllers
         [HttpGet("available", Name = "GetAvailableMatches")]
         public IActionResult GetAvailableMatches()
         {
-            List<Match> matchesAvailable = [];
+            List<MatchRequest> matchesAvailable = [];
             var matches = _matchRepository.Get();
             foreach (var match in matches)
             {
                 if (match.MatchStart == null)
                 {
-                    matchesAvailable.Add(match);
+                    MatchRequest matchRequest = new()
+                    {
+                        Id = match.Id,
+                        MatchStart = match.MatchStart,
+                        MatchEnd = match.MatchEnd,
+                        MatchResult = match.MatchResult
+                    };
+                    foreach (var ps in match.PlayerStates)
+                    {
+                        matchRequest.PlayersIds.Add(ps.User.Id);
+                    }
+                    matchesAvailable.Add(matchRequest);
                 }
             }
             return Ok(matchesAvailable);
@@ -118,6 +130,23 @@ namespace MafiaAPI.Controllers
             await _playerStateRepository.Update(ps);
             await _hubContext.Clients.Group(id).SendAsync("Refresh");
             return Ok();
+        }
+
+        [Authorize]
+        [HttpPost("{id}/roles")]
+        public async Task<IActionResult> GetRolesInMatch(string id)
+        {
+            List<PlayersRoleRequest> playersRoles = [];
+            var match = await _matchRepository.Get(id);
+            foreach (var ps in match.PlayerStates)
+            {
+                playersRoles.Add(new()
+                {
+                    PlayerId = ps.UserId,
+                    RoleName = ps.Role.Name
+                });
+            }
+            return Ok(playersRoles);
         }
     }
 }

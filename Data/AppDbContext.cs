@@ -26,9 +26,10 @@ namespace MafiaAPI.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
-                .HasKey(x => x.Id);
-            modelBuilder.Entity<User>()
                 .HasIndex(x => x.Name);
+
+            modelBuilder.Entity<PlayerState>()
+                .HasIndex(x => x.MatchId);
 
             modelBuilder.Entity<PlayerState>()
                 .HasOne(x => x.User)
@@ -44,6 +45,8 @@ namespace MafiaAPI.Data
                 .HasOne(x => x.Role)
                 .WithMany(p => p.PlayerStates)
                 .HasForeignKey(x => x.RoleId);
+
+            
         }
     }
 }

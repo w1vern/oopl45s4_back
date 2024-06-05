@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using MafiaAPI.Schemas;
+using MafiaAPI.RequestModels;
 namespace MafiaAPI.Controllers
 {
     [ApiController]

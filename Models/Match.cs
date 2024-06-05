@@ -6,6 +6,6 @@
         public DateTime? MatchStart { get; set; }
         public DateTime? MatchEnd { get; set; }
         public string? MatchResult { get; set; }
-        public List<PlayerState> PlayerStates { get; set; } = new();
+        public virtual List<PlayerState> PlayerStates { get; set; } = new();
     }
 }
