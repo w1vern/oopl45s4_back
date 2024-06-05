@@ -16,6 +16,8 @@ namespace MafiaAPI.Data
             // Затычка (без миграции)
             //Database.EnsureDeleted();
             //Database.EnsureCreated();
+
+            Database.Migrate();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
