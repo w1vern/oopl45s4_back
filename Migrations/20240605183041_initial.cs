@@ -92,18 +92,6 @@ namespace MafiaAPI.Migrations
                 name: "IX_Users_Name",
                 table: "Users",
                 column: "Name");
-
-            migrationBuilder.InsertData(
-                table: "Roles",
-                columns: ["Id", "Name", "Description"],
-                values: new object[,]
-                {
-                    { Guid.NewGuid().ToString(), "Host", "GOD" },
-                    { Guid.NewGuid().ToString(), "Citizen", "Just Simple Citizen" },
-                    { Guid.NewGuid().ToString(), "Mafia", "Serial Killer!" },
-                    { Guid.NewGuid().ToString(), "Doctor", "Can rescue lives?" },
-                    { Guid.NewGuid().ToString(), "Sheriff", "Make citizens live a lil longer." }
-                });
         }
 
         /// <inheritdoc />

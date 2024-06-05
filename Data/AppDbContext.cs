@@ -12,6 +12,7 @@ namespace MafiaAPI.Data
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             // Затычка (без миграции)
             //Database.EnsureDeleted();
             //Database.EnsureCreated();

@@ -52,6 +52,7 @@ namespace MafiaAPI.Repositories.EntityFramework
             {
                 role.Name = item.Name;
                 role.Description = item.Description;
+                role.Priority = item.Priority;
 
                 _context.Roles.Update(role);
                 await _context.SaveChangesAsync();

@@ -3,6 +3,6 @@
     public class PlayersRoleRequest
     {
         public string PlayerId { get; set; }
-        public string RoleName { get; set; }
+        public string? RoleName { get; set; }
     }
 }

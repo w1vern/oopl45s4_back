@@ -48,6 +48,8 @@ namespace MafiaAPI.Repositories.EntityFramework
                 match.MatchStart = item.MatchStart;
                 match.MatchEnd = item.MatchEnd;
                 match.PlayerStates = item.PlayerStates;
+                match.currentState = item.currentState;
+                match.MatchResult = item.MatchResult;
 
                 _context.Matches.Update(match);
                 await _context.SaveChangesAsync();

@@ -133,7 +133,7 @@ namespace MafiaAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost("{id}/roles")]
+        [HttpGet("{id}/roles")]
         public async Task<IActionResult> GetRolesInMatch(string id)
         {
             List<PlayersRoleRequest> playersRoles = [];
@@ -143,10 +143,43 @@ namespace MafiaAPI.Controllers
                 playersRoles.Add(new()
                 {
                     PlayerId = ps.UserId,
-                    RoleName = ps.Role.Name
+                    RoleName = ps.Role?.Name
                 });
             }
             return Ok(playersRoles);
+        }
+
+        [Authorize]
+        [HttpGet("{id}/get_state")]
+        public async Task<IActionResult> GetState(string id)
+        {
+            var match = await _matchRepository.Get(id);
+            if (match.MatchStart == null)
+            {
+                return BadRequest();
+            }
+            return Ok(match.currentState);
+        }
+
+        [Authorize]
+        [HttpPost("{id}/switch_state")]
+        public async Task<IActionResult> SwitchState(string id)
+        {
+            var match = await _matchRepository.Get(id);
+            if(match.MatchStart == null)
+            {
+                return BadRequest();
+            }
+            HashSet<int> states = [0];
+            foreach (var ps in match.PlayerStates.ToList())
+            {
+                states.Add(ps.Role.Priority);
+            }
+            var sortedStates = states.ToList();
+            sortedStates.Sort();
+            match.currentState = sortedStates.IndexOf(match.currentState) == sortedStates.Count - 1 ? 0 : match.currentState + 1;
+
+            return Ok(match.currentState);
         }
     }
 }

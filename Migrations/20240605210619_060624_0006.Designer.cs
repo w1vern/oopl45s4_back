@@ -3,6 +3,7 @@ using System;
 using MafiaAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MafiaAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240605210619_060624_0006")]
+    partial class _060624_0006
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,7 +47,7 @@ namespace MafiaAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Matches", (string)null);
+                    b.ToTable("Matches");
                 });
 
             modelBuilder.Entity("MafiaAPI.Models.PlayerState", b =>
@@ -74,7 +77,7 @@ namespace MafiaAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PlayerStates", (string)null);
+                    b.ToTable("PlayerStates");
                 });
 
             modelBuilder.Entity("MafiaAPI.Models.Role", b =>
@@ -95,7 +98,7 @@ namespace MafiaAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("MafiaAPI.Models.User", b =>
@@ -115,7 +118,7 @@ namespace MafiaAPI.Migrations
 
                     b.HasIndex("Name");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("MafiaAPI.Models.PlayerState", b =>
