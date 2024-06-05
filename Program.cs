@@ -2,7 +2,6 @@ using MafiaAPI.Data;
 using MafiaAPI.Hub;
 using MafiaAPI.Repositories;
 using MafiaAPI.Repositories.EntityFramework;
-using Microsoft.AspNetCore.WebSockets;
 using Microsoft.EntityFrameworkCore;
 
 namespace MafiaAPI
@@ -25,20 +24,6 @@ namespace MafiaAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Add session service
-            /*builder.Services.AddDistributedMemoryCache();
-            builder.Services.AddSession(options =>
-            {
-                options.Cookie.Name = ".MafiaGame.Session";
-                options.IdleTimeout = TimeSpan.FromHours(12);
-            });*/
-
-            // Add Websockets service
-            builder.Services.AddWebSockets(options =>
-            {
-                options.KeepAliveInterval = TimeSpan.FromMinutes(10);
-            });
-
             // Add authentication service
             builder.Services.AddAuthentication("Cookies").AddCookie(options =>
             {
@@ -54,13 +39,6 @@ namespace MafiaAPI
             // Connecting PostgreSQL
             var connection = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
-
-            builder.Services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
-            {
-                builder.WithOrigins("*")
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            }));
 
             builder.Services.AddSignalR();
 
@@ -80,7 +58,7 @@ namespace MafiaAPI
             // Use WebSockets MW
             app.UseWebSockets();
 
-            app.UseCors("MyPolicy");
+            app.UseCors(builder => builder.AllowAnyOrigin());
 
             app.MapControllers();
 

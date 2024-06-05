@@ -40,6 +40,11 @@ namespace MafiaAPI.Repositories.EntityFramework
             return await _context.Roles.FindAsync(id);
         }
 
+        public async Task<Role> GetByName(string name)
+        {
+            return await _context.Roles.FirstOrDefaultAsync(x => x.Name == name);
+        }
+
         public async Task Update(Role item)
         {
             var role = await Get(item.Id);

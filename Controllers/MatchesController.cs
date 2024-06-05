@@ -3,10 +3,8 @@ using MafiaAPI.Models;
 using MafiaAPI.Repositories;
 using MafiaAPI.RequestModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using System.Security.Claims;
 
 namespace MafiaAPI.Controllers
 {
@@ -33,7 +31,7 @@ namespace MafiaAPI.Controllers
             Match match = await _matchRepository.Get(id);
             foreach (var ps in match.PlayerStates)
             {
-                if (ps.Role == "Host")
+                if (ps.Role.Name == "Host")
                 {
                     if(ps.User.Id != userRequestingId)
                     {

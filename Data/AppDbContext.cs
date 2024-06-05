@@ -14,7 +14,13 @@ namespace MafiaAPI.Data
         {
             // Затычка (без миграции)
             //Database.EnsureDeleted();
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder
+                .UseLazyLoadingProxies();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -34,15 +40,10 @@ namespace MafiaAPI.Data
                 .WithMany(p => p.PlayerStates)
                 .HasForeignKey(x => x.MatchId);
 
-            /*modelBuilder.Entity<Match>()
-                .HasMany(x => x.Users)
-                .WithMany(x => x.Matches)
-                .UsingEntity(j => j.ToTable("UserMatches"));*/
-
-            /*modelBuilder.Entity<User>()
-                .HasOne(u => u.Company)
-                .WithMany(c => c.Users)
-                .HasForeignKey(u => u.CompanyInfoKey);*/
+            modelBuilder.Entity<PlayerState>()
+                .HasOne(x => x.Role)
+                .WithMany(p => p.PlayerStates)
+                .HasForeignKey(x => x.RoleId);
         }
     }
 }

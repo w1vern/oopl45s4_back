@@ -9,5 +9,6 @@ namespace MafiaAPI.Repositories
         Task Create(Role item);
         Task Update(Role item);
         Task<Role> Delete(string id);
+        Task<Role> GetByName(string name);
     }
 }

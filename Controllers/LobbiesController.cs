@@ -2,7 +2,6 @@
 using MafiaAPI.Models;
 using MafiaAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
@@ -15,14 +14,17 @@ namespace MafiaAPI.Controllers
         private readonly IMatchRepository _matchRepository;
         private readonly IPlayerStateRepository _playerStateRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IHubContext<SignalRHub> _hubContext;
 
-        public LobbiesController(IMatchRepository matchRepository, IPlayerStateRepository playerStateRepository, IUserRepository userRepository, IHubContext<SignalRHub> hubContext)
+        public LobbiesController(IMatchRepository matchRepository, IPlayerStateRepository playerStateRepository, 
+            IUserRepository userRepository, IHubContext<SignalRHub> hubContext, IRoleRepository roleRepository)
         {
             _matchRepository = matchRepository;
             _playerStateRepository = playerStateRepository;
             _userRepository = userRepository;
             _hubContext = hubContext;
+            _roleRepository = roleRepository;
         }
 
         [Authorize]
@@ -34,16 +36,17 @@ namespace MafiaAPI.Controllers
             var matchesList = userHost.PlayerStates;
             foreach (var mch in matchesList)
             {
-                if (mch.Match.MatchEnd == null && mch.Role == "Host")
+                if (mch.Match.MatchEnd == null && mch.Role.Name == "Host")
                 {
                     return BadRequest();
                 }
             }
             Match match = new();
             await _matchRepository.Create(match);
+            Role roleHost = await _roleRepository.GetByName("Host");
             PlayerState playerState = new()
             {
-                Role = "Host",
+                Role = roleHost,
                 IsAlive = true,
                 Match = match,
                 User = userHost
@@ -72,7 +75,6 @@ namespace MafiaAPI.Controllers
             }
             PlayerState playerState = new()
             {
-                Role = "Player",
                 IsAlive = true,
                 Match = match,
                 User = userRequesting
