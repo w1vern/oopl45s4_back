@@ -30,7 +30,7 @@ namespace MafiaAPI.Controllers
         {
             string? userRequestingId = User.Identity.Name;
             Match match = await _matchRepository.Get(id);
-            foreach (var ps in match.PlayerStates)
+            foreach (var ps in match.PlayerStates.ToList())
             {
                 if (ps.Role.Name == "Host")
                 {
@@ -74,7 +74,7 @@ namespace MafiaAPI.Controllers
                 MatchEnd = match.MatchEnd,
                 MatchResult = match.MatchResult
             };
-            foreach (var ps in match.PlayerStates)
+            foreach (var ps in match.PlayerStates.ToList())
             {
                 matchRequest.PlayersIds.Add(ps.User.Id);
             }
@@ -86,7 +86,7 @@ namespace MafiaAPI.Controllers
         public IActionResult GetAvailableMatches()
         {
             List<MatchRequest> matchesAvailable = [];
-            var matches = _matchRepository.Get();
+            var matches = _matchRepository.Get().ToList();
             foreach (var match in matches)
             {
                 if (match.MatchStart == null)
@@ -98,7 +98,7 @@ namespace MafiaAPI.Controllers
                         MatchEnd = match.MatchEnd,
                         MatchResult = match.MatchResult
                     };
-                    foreach (var ps in match.PlayerStates)
+                    foreach (var ps in match.PlayerStates.ToList())
                     {
                         matchRequest.PlayersIds.Add(ps.User.Id);
                     }
@@ -138,7 +138,7 @@ namespace MafiaAPI.Controllers
         {
             List<PlayersRoleRequest> playersRoles = [];
             var match = await _matchRepository.Get(id);
-            foreach (var ps in match.PlayerStates)
+            foreach (var ps in match.PlayerStates.ToList())
             {
                 playersRoles.Add(new()
                 {

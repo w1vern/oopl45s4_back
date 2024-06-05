@@ -84,7 +84,7 @@ namespace MafiaAPI.Controllers
                 string? userId = User.Identity.Name;
                 User user = await _userRepository.Get(userId);
 
-                foreach (var ps in user.PlayerStates)
+                foreach (var ps in user.PlayerStates.ToList())
                 {
                     if (ps.Match.MatchEnd == null)
                     {
