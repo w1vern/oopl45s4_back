@@ -2,11 +2,11 @@
 {
     public class RoleInfo
     {
-        public string Id;
-        public int Count;
+        public string Id { get; set; }
+        public int Count { get; set; }
     }
     public class StartMatchRequest
     {
-        public List<RoleInfo> Roles;
+        public List<RoleInfo> Roles = [];
     }
 }

@@ -26,9 +26,15 @@ namespace MafiaAPI.Controllers
             _hubContext = hubContext;
         }
 
+        [HttpGet("/test")]
+        public IActionResult TestMethod()
+        {
+            return Ok(new StartMatchRequest() { Roles = [new RoleInfo() { Count=1, Id="asfd"}] });
+        }
+
         [Authorize]
         [HttpPost("{id:guid}/start", Name = "StartMatch")]
-        public async Task<IActionResult> StartMatch(string id, [FromBody] StartMatchRequest startMatchRequest)
+        public async Task<IActionResult> StartMatch([FromBody] List<RoleInfo> startMatchRequest, string id)
         {
             string? userRequestingId = User.Identity.Name;
             Match match = await _matchRepository.Get(id);
@@ -52,7 +58,7 @@ namespace MafiaAPI.Controllers
                 return Conflict();
             }
             List<string> roles = [];
-            foreach (var item in startMatchRequest.Roles)
+            foreach (var item in startMatchRequest)
             {
                 for (int i = 0; i < item.Count; i++)
                 {
@@ -81,6 +87,8 @@ namespace MafiaAPI.Controllers
 
             match.MatchStart = DateTime.Now;
             await _matchRepository.Update(match);
+
+            await _hubContext.Clients.Group(id).SendAsync("Refresh");
             return Ok();
         }
 
@@ -208,7 +216,8 @@ namespace MafiaAPI.Controllers
             var sortedStates = states.ToList();
             sortedStates.Sort();
             match.currentState = sortedStates.IndexOf(match.currentState) == sortedStates.Count - 1 ? 0 : match.currentState + 1;
-
+            await _matchRepository.Update(match);
+            await _hubContext.Clients.Group(id).SendAsync("Refresh");
             return Ok(match.currentState);
         }
     }
