@@ -15,18 +15,20 @@ namespace MafiaAPI.Controllers
     {
         private readonly IMatchRepository _matchRepository;
         private readonly IPlayerStateRepository _playerStateRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IHubContext<SignalRHub> _hubContext;
 
-        public MatchesController(IMatchRepository matchRepository, IPlayerStateRepository playerStateRepository, IHubContext<SignalRHub> hubContext)
+        public MatchesController(IMatchRepository matchRepository, IPlayerStateRepository playerStateRepository, IRoleRepository roleRepository, IHubContext<SignalRHub> hubContext)
         {
             _matchRepository = matchRepository;
             _playerStateRepository = playerStateRepository;
+            _roleRepository = roleRepository;
             _hubContext = hubContext;
         }
 
         [Authorize]
-        [HttpPost("start", Name = "StartMatch")]
-        public async Task<IActionResult> StartMatch([FromBody] string id)
+        [HttpPost("{id:guid}/start", Name = "StartMatch")]
+        public async Task<IActionResult> StartMatch(string id, [FromBody] StartMatchRequest startMatchRequest)
         {
             string? userRequestingId = User.Identity.Name;
             Match match = await _matchRepository.Get(id);
@@ -48,6 +50,27 @@ namespace MafiaAPI.Controllers
             if (match.MatchStart != null)
             {
                 return Conflict();
+            }
+            List<string> roles = [];
+            foreach (var item in startMatchRequest.Roles)
+            {
+                for (int i = 0; i < item.Count; i++)
+                {
+                    roles.Add(item.Id);
+                }
+            }
+            var playerStates = match.PlayerStates;
+            var civilian_id = (await _roleRepository.GetByName("Citizen")).Id;
+            while (roles.Count < playerStates.Count - 1) {
+                roles.Add(civilian_id);
+            }
+            var roles_arr = roles.ToArray();
+            Random.Shared.Shuffle(roles_arr);
+
+            for (int i = 1; i < roles_arr.Length+1; i++)
+            {
+                playerStates[i].RoleId = roles_arr[i - 1];
+                await _playerStateRepository.Update(playerStates[i]);
             }
 
             match.MatchStart = DateTime.Now;
