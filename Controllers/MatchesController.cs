@@ -59,7 +59,7 @@ namespace MafiaAPI.Controllers
                     roles.Add(item.Id);
                 }
             }
-            var playerStates = match.PlayerStates;
+            var playerStates = match.PlayerStates.ToList();
             var civilian_id = (await _roleRepository.GetByName("Citizen")).Id;
             while (roles.Count < playerStates.Count - 1) {
                 roles.Add(civilian_id);
@@ -67,10 +67,16 @@ namespace MafiaAPI.Controllers
             var roles_arr = roles.ToArray();
             Random.Shared.Shuffle(roles_arr);
 
-            for (int i = 1; i < roles_arr.Length+1; i++)
+
+            int role_ind = 0;
+            for (int i = 0; i < playerStates.Count; i++)
             {
-                playerStates[i].RoleId = roles_arr[i - 1];
-                await _playerStateRepository.Update(playerStates[i]);
+                if (playerStates[i].RoleId == null)
+                {
+                    playerStates[i].RoleId = roles_arr[role_ind];
+                    await _playerStateRepository.Update(playerStates[i]);
+                    role_ind++;
+                }  
             }
 
             match.MatchStart = DateTime.Now;
