@@ -15,7 +15,7 @@ namespace MafiaAPI.Controllers
             _roleRepository = roleRepository;
         }
 
-        [HttpGet("/get_roles")]
+        [HttpGet(Name ="GetRoles")]
         public ActionResult GetState()
         {
             List<RoleResponse> roles = [];
