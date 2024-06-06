@@ -132,7 +132,7 @@ namespace MafiaAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost("{id}/kill")]
+        [HttpPost("{id:guid}/kill")]
         public async Task<IActionResult> KillInMatch(string id, [FromBody] string playerId)
         {
             var match = await _matchRepository.Get(id);
@@ -144,7 +144,7 @@ namespace MafiaAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost("{id}/revive")]
+        [HttpPost("{id:guid}/revive")]
         public async Task<IActionResult> ReviveInMatch(string id, [FromBody] string playerId)
         {
             var match = await _matchRepository.Get(id);
@@ -156,7 +156,7 @@ namespace MafiaAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet("{id}/roles")]
+        [HttpGet("{id:guid}/roles")]
         public async Task<IActionResult> GetRolesInMatch(string id)
         {
             List<PlayersRoleRequest> playersRoles = [];
@@ -174,7 +174,7 @@ namespace MafiaAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet("{id}/get_state")]
+        [HttpGet("{id:guid}/get_state")]
         public async Task<IActionResult> GetState(string id)
         {
             var match = await _matchRepository.Get(id);
@@ -186,7 +186,7 @@ namespace MafiaAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost("{id}/switch_state")]
+        [HttpPost("{id:guid}/switch_state")]
         public async Task<IActionResult> SwitchState(string id)
         {
             var match = await _matchRepository.Get(id);

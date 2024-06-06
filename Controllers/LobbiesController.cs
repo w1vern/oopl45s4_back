@@ -56,7 +56,7 @@ namespace MafiaAPI.Controllers
         }
 
         [Authorize]
-        [HttpPost("connect/{id}", Name = "ConnectMatch")]
+        [HttpPost("connect/{id:guid}", Name = "ConnectMatch")]
         public async Task<IActionResult> ConnectMatch(string id)
         {
             var match = await _matchRepository.Get(id);

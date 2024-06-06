@@ -16,18 +16,18 @@ namespace MafiaAPI.Controllers
         }
 
         [HttpGet("/get_roles")]
-        public ActionResult GetState()
+        public ActionResult GetAllRoles()
         {
             List<RoleResponse> roles = [];
-            foreach (var role in _roleRepository.Get().ToList()){
-                 RoleResponse role_info = new()
+            foreach (var role in _roleRepository.Get().ToList())
+            {
+                roles.Add(new()
                 {
-                        Id = role.Id,
-                        Name = role.Name,
-                        Description = role.Description,
-                        Priority = role.Priority
-                };
-                roles.Add(role_info);
+                    Id = role.Id,
+                    Name = role.Name,
+                    Description = role.Description,
+                    Priority = role.Priority
+                });
             }
             return Ok(roles);
         }
