@@ -4,5 +4,6 @@
     {
         public string PlayerId { get; set; }
         public string? RoleName { get; set; }
+        public bool IsAlive {get; set;}
     }
 }

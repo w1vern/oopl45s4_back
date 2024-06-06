@@ -143,7 +143,8 @@ namespace MafiaAPI.Controllers
                 playersRoles.Add(new()
                 {
                     PlayerId = ps.UserId,
-                    RoleName = ps.Role?.Name
+                    RoleName = ps.Role?.Name,
+                    IsAlive = ps.IsAlive
                 });
             }
             return Ok(playersRoles);
