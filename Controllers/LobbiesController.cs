@@ -4,6 +4,7 @@ using MafiaAPI.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MafiaAPI.Controllers
 {
@@ -29,6 +30,9 @@ namespace MafiaAPI.Controllers
 
         [Authorize]
         [HttpPost("create", Name = "CreateMatch")]
+        [SwaggerOperation(Summary = "Создает новый матч (лобби)", Description = "Возвращает GUID созданного матча")]
+        [SwaggerResponse(200, Description = "Возвращает ID созданного матча", Type = typeof(string))]
+        [SwaggerResponse(400, Description = "Матч в процессе для данного хоста уже существует")]
         public async Task<IActionResult> CreateMatch()
         {
             string? userRequestingId = User.Identity.Name;
@@ -57,6 +61,9 @@ namespace MafiaAPI.Controllers
 
         [Authorize]
         [HttpPost("connect/{id:guid}", Name = "ConnectMatch")]
+        [SwaggerOperation(Summary = "Подключение к матчу (лобби)", Description = "Принимает из query уникальный идентификатор лобби и подключает игрока")]
+        [SwaggerResponse(200, Description = "Успешное подключение игрока к лобби")]
+        [SwaggerResponse(400, Description = "Матч не существует / в процессе или игрок уже подключен")]
         public async Task<IActionResult> ConnectMatch(string id)
         {
             var match = await _matchRepository.Get(id);

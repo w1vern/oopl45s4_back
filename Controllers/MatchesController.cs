@@ -6,6 +6,7 @@ using MafiaAPI.Schemas;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MafiaAPI.Controllers
 {
@@ -34,6 +35,11 @@ namespace MafiaAPI.Controllers
 
         [Authorize]
         [HttpPost("{id:guid}/start", Name = "StartMatch")]
+        [SwaggerOperation(Summary = "Запуск матча", Description = "Принимает GUID матча, устанавливает начало и раздает роли участникам")]
+        [SwaggerResponse(403, "Запрашивающий пользователь не является хостом")]
+        [SwaggerResponse(400, "Такого матча не существует")]
+        [SwaggerResponse(409, "Матч уже запущен")]
+        [SwaggerResponse(200, "Матч успешно запущен")]
         public async Task<IActionResult> StartMatch([FromBody] List<RoleInfo> startMatchRequest, string id)
         {
             string? userRequestingId = User.Identity.Name;
@@ -94,6 +100,9 @@ namespace MafiaAPI.Controllers
 
         [Authorize]
         [HttpGet("{id:guid}", Name = "GetMatchInfo")]
+        [SwaggerOperation(Summary = "Запрос на информацию о матче", Description = "Возвращает обобщенную информацию о матче")]
+        [SwaggerResponse(400, "Такого матча не существует / пользователь не является участником")]
+        [SwaggerResponse(200, "Возвращена информация о матче", Type = typeof(MatchRequest))]
         public async Task<IActionResult> GetInfo(string id)
         {
             var match = await _matchRepository.Get(id);
@@ -120,6 +129,8 @@ namespace MafiaAPI.Controllers
 
         [Authorize]
         [HttpGet("available", Name = "GetAvailableMatches")]
+        [SwaggerOperation(Summary = "Запрос списка матчей", Description = "Возвращает массив доступных матчей для входа")]
+        [SwaggerResponse(200, Description = "Возвращает массив доступных матчей", Type = typeof(List<MatchRequest>))]
         public IActionResult GetAvailableMatches()
         {
             List<MatchRequest> matchesAvailable = [];
@@ -147,6 +158,8 @@ namespace MafiaAPI.Controllers
 
         [Authorize]
         [HttpPost("{id:guid}/kill")]
+        [SwaggerOperation(Summary = "Умертвить игрока в матче", Description = "Принимает GUID матча и игрока и выставляет флаг \"живого\" в false")]
+        [SwaggerResponse(200, "Операция обновления состояния выполнена успешно")]
         public async Task<IActionResult> KillInMatch(string id, [FromBody] string playerId)
         {
             var match = await _matchRepository.Get(id);
@@ -159,6 +172,8 @@ namespace MafiaAPI.Controllers
 
         [Authorize]
         [HttpPost("{id:guid}/revive")]
+        [SwaggerOperation(Summary = "Возродить игрока", Description = "Принимает GUID матча и игрока и выставляет флаг \"живого\" в true")]
+        [SwaggerResponse(200, Description = "Операция обновления состояния успешно выполнена")]
         public async Task<IActionResult> ReviveInMatch(string id, [FromBody] string playerId)
         {
             var match = await _matchRepository.Get(id);
@@ -171,6 +186,8 @@ namespace MafiaAPI.Controllers
 
         [Authorize]
         [HttpGet("{id:guid}/roles")]
+        [SwaggerOperation(Summary = "Запрос на список всех ролей", Description = "Принимает GUID матча и возвращает массив")]
+        [SwaggerResponse(200, Description = "Массив ролей в запрошенном матче", Type = typeof(List<PlayersRoleRequest>))]
         public async Task<IActionResult> GetRolesInMatch(string id)
         {
             List<PlayersRoleRequest> playersRoles = [];
@@ -189,6 +206,9 @@ namespace MafiaAPI.Controllers
 
         [Authorize]
         [HttpGet("{id:guid}/get_state")]
+        [SwaggerOperation(Summary = "Запрос состояния матча", Description = "Принимает GUID матча и возвращает состояние матча")]
+        [SwaggerResponse(200, Description = "Возврат состония матча", Type = typeof(int))]
+        [SwaggerResponse(400, "Такого матча не существует")]
         public async Task<IActionResult> GetState(string id)
         {
             var match = await _matchRepository.Get(id);
@@ -201,6 +221,9 @@ namespace MafiaAPI.Controllers
 
         [Authorize]
         [HttpPost("{id:guid}/switch_state")]
+        [SwaggerOperation(Summary = "Обновить состояние матча", Description = "Принимает GUID матча и обновляет его состояние")]
+        [SwaggerResponse(200, "Состояние матча обновлено, возвращено новое состояние", Type = typeof(int))]
+        [SwaggerResponse(400, "Такого матча не существует")]
         public async Task<IActionResult> SwitchState(string id)
         {
             var match = await _matchRepository.Get(id);
